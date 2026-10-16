@@ -1,4 +1,6 @@
-# 构建复现记录
+# v64 构建复现记录
+
+本文件保留 v64 的历史验收证据。v65 的源码变化、构建比较及设备验证另见 `V65-STARTUP-PIN.md`。
 
 2026-10-16，在同一 Linux 宿主上使用 debootstrap 新建 Ubuntu 22.04 minbase chroot。原构建根目录与新根目录完全分开；新源码从 manifest 固定的 Git 对象建立独立 checkout，没有复制原 out、ccache、编译对象或可执行产物。源码共 250 个项目。仅复用只读 Git 内容对象作为传输缓存；工作目录和编译输出独立。
 

@@ -18,6 +18,8 @@ def run(script, *args):
 run('cpio_edit.py','--no-image')
 run('cpio_swap.py','system/bin/recovery',root/'system/bin/recovery')
 run('cpio_swap.py','system/lib64/libbase.so',root/'system/lib64/libbase.so')
+run('cpio_swap.py','system/bin/mount-external-sd.sh',
+    bundle/'device/fiio/jm21/recovery/root/system/bin/mount-external-sd.sh')
 run('cpio_add_hal.py')
 output.parent.mkdir(parents=True,exist_ok=True)
 output.write_bytes((bundle/'work/v32-crypto-km-lz4.img').read_bytes())

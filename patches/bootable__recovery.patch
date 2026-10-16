@@ -37727,3 +37727,18 @@ index 0a8605af..626c0493 100755
        DataManager::GetValue("tw_secondary_brightness_file",
  			    secondary_brightness_file);
        if (!secondary_brightness_file.empty())
+diff --git a/twrp.cpp b/twrp.cpp
+index 6f9e8585..b9d0fc55 100644
+--- a/twrp.cpp
++++ b/twrp.cpp
+@@ -638,6 +638,10 @@ int main(int argc, char **argv) {
+ 	// Fox extra setup
+   	TWFunc::Setup_Verity_Forced_Encryption();
+ 
++	// Startup dialogs have completed (decrypt, read-only mount, etc.).
++	// JM21 background CLI storage commands must not finish these modal pages.
++	property_set("of.ui.ready", "1");
++
+ 	// Launch the main GUI
+ 	if (Fox_CheckReload_Themes()) {
+ 		//[f/d] Start UI using reapply_settings page (executed on recovery startup)

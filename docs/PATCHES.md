@@ -4,7 +4,7 @@
 
 | 源码项目 | 内容 |
 | --- | --- |
-| bootable/recovery | metadata block-device 回退、MTP 刷新与去重、亮度和屏幕唤醒、主题调整与只保留中英文 |
+| bootable/recovery | metadata block-device 回退、MTP 刷新与去重、亮度和屏幕唤醒、启动对话框结束信号、主题调整与只保留中英文 |
 | build/make | OrangeFox 镜像构建接入与 recovery 打包调整 |
 | system/core | liblp 根据实际 super 大小扩展记录的 block device 容量，含回归测试 |
 | system/libbase | recovery 无 logd 时将日志同时输出到 stderr |

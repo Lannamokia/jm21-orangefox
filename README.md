@@ -15,6 +15,7 @@ JM21 专用设备树、固定源码清单、合并补丁和镜像装配工具。
 - 可写 `/persist` 绑定至 `/mnt/vendor/persist`，满足 QTI Gatekeeper TA 的 GP FS 需求。未挂载时 TA 返回 -1000，只读时返回 -49。
 - QSEE/Gatekeeper 等 `/data` 挂载后启动，避免固定住临时原厂 vendor 挂载；补齐 passthrough 实现及 HIDL memory 依赖。
 - MTP、亮度、屏幕唤醒、中文字体裁剪，以及官方完整 OTA、动态 super 元数据和 recovery 保留钩子。
+- v65 修复启动 PIN 页被外置 SD 自动挂载命令提前关闭：挂载助手等待启动对话框结束后再操作。
 
 Recovery 使用 permissive SELinux；这些配置用于已解锁设备的维护环境。不要把 persist 镜像作为通用刷机材料；每台设备使用自己的 persist。
 
@@ -22,7 +23,7 @@ Recovery 使用 permissive SELinux；这些配置用于已解锁设备的维护�
 
 在 Ubuntu 22.04 上安装 `scripts/install-deps.sh` 中的依赖。建议全新 chroot、至少 16 GB RAM 和 100 GB 可用空间；8 核可使用 `JOBS=8`，关闭 ccache。
 
-Release 提供可直接解包的 `jm21-build-kit-v64.tar.gz`，包含本仓库源码、装配输入和 kernel；也可分别下载源码、`jm21-assembly-inputs.tar.gz` 和 `jm21-kernel-input.tar.gz`。先用同一 release 的 `SHA256SUMS` 校验下载文件。完整源码工程仍需按固定 manifest 获取。
+Release 提供可直接解包的 `jm21-build-kit-v65.tar.gz`，包含本仓库源码、装配输入和 kernel；也可分别下载源码、`jm21-assembly-inputs.tar.gz` 和 `jm21-kernel-input.tar.gz`。先用同一 release 的 `SHA256SUMS-v65` 校验下载文件。完整源码工程仍需按固定 manifest 获取。
 
 ```bash
 # 在空目录初始化源码；将本仓库放到另一个目录，记为 $JM21。
@@ -48,4 +49,4 @@ python3 "$JM21/scripts/compare.py" ./OrangeFox-JM21.img
 
 源码补丁保留对应上游许可证；设备 fstab / init 文件保留原始版权声明。固定输入包含 Android / OrangeFox 编译文件、字体和 FiiO / Qualcomm 厂商文件，权利归各自所有者；本仓库不对这些文件重新授权。`assembly-inputs.json` 给出每一项装配输入的大小与 SHA-256。
 
-不包含设备 persist、misc、用户数据、锁屏材料、私有 SSH 配置或调试日志。构建验证细节和哈希见 `docs/REPRODUCIBILITY.md`。
+不包含设备 persist、misc、用户数据、锁屏材料、私有 SSH 配置或调试日志。v64 全新环境复现记录见 `docs/REPRODUCIBILITY.md`；当前版本修复与验证见 `docs/V65-STARTUP-PIN.md`。比较脚本默认校验 v65，旧版可用 `--reference v64`。

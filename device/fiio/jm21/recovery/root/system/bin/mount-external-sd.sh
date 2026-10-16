@@ -13,8 +13,12 @@ while [ $i -lt 60 ]; do
     i=$((i + 1))
 done
 
-# Let the recovery UI finish coming up before talking to it.
-sleep 4
+# CLI operations use singleaction_page, which sets tw_page_done on completion.
+# During the boot PIN/password dialog that would dismiss the dialog without
+# authenticating. Wait until recovery has finished all startup modal pages.
+while [ "$(getprop of.ui.ready)" != "1" ]; do
+    sleep 1
+done
 
 /system/bin/twrp unmount /external_sd >/dev/null 2>&1
 /system/bin/twrp mount /external_sd >/dev/null 2>&1
