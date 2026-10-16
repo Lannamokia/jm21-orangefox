@@ -1,0 +1,252 @@
+diff --git a/Decrypt.cpp b/Decrypt.cpp
+index d9f034b..43dde1f 100755
+--- a/Decrypt.cpp
++++ b/Decrypt.cpp
+@@ -28,6 +28,8 @@
+ #include <sys/types.h>
+ 
+ #include <keyutils.h>
++#include <linux/keyctl.h>
++#include <sys/syscall.h>
+ #include "Weaver1.h"
+ #include "cutils/properties.h"
+ 
+@@ -56,6 +58,11 @@
+ #include <aidl/android/system/keystore2/IKeystoreService.h>
+ #include <aidl/android/system/keystore2/ResponseCode.h>
+ #include <android/hardware/gatekeeper/1.0/IGatekeeper.h>
++#include <hidl/HidlTransportSupport.h>
++#include <atomic>
++#include <chrono>
++#include <mutex>
++#include <thread>
+ 
+ #include <binder/IServiceManager.h>
+ #include <binder/IPCThreadState.h>
+@@ -184,6 +191,16 @@ extern "C" bool lookup_ref_tar(fscrypt_policy *fep, uint8_t* policy) {
+ 
+ extern "C" bool Decrypt_DE() {
+ 	printf("Attempting to initialize DE keys\n");
++	/* Recovery never runs whatever normally joins the session keyring vold
++	 * keeps its FBE keys in, so fscryptKeyring() (KeyUtil.cpp) fails with
++	 * ENOKEY and installProvisioningKey() aborts the whole DE init -- even
++	 * though the real FS_IOC_ADD_ENCRYPTION_KEY install already succeeded.
++	 * Join (creating it if needed) that keyring first. */
++	if (syscall(__NR_keyctl, KEYCTL_JOIN_SESSION_KEYRING, "fscrypt", 0, 0, 0) < 0) {
++		printf("OFDBG: keyctl JOIN_SESSION_KEYRING(\"fscrypt\") failed: %s\n", strerror(errno));
++	} else {
++		printf("OFDBG: joined session keyring 'fscrypt'\n");
++	}
+ 	if (!fscrypt_initialize_systemwide_keys()) { // this deals with the overarching device encryption
+ 		printf("fscrypt_initialize_systemwide_keys returned fail\n");
+ 		return false;
+@@ -434,6 +451,17 @@ namespace keystore {
+ 		dstof << srcif.rdbuf();
+ 		srcif.close();
+ 		dstof.close();
++		// keystore2 has had this file open since before metadata decryption
++		// finished -- metadatacrypt/unwrapping the device key is what makes
++		// /data readable at all, and that goes through keystore2.  Writing the
++		// real database over the file underneath it therefore leaves the live
++		// instance answering from its own, alias-free copy: getKeyEntry() on
++		// the synthetic password alias returns KEY_NOT_FOUND and the PIN path
++		// dies right there.  Restart it so it picks the copied database up.
++		printf("restarting keystore2 so it re-opens the copied database\n");
++		fflush(stdout);
++		printf("ctl.restart keystore2 -> %d\n", property_set("ctl.restart", "keystore2"));
++		fflush(stdout);
+ 	}
+ 
+ 	/* C++ replacement for function of the same name
+@@ -517,11 +545,19 @@ namespace keystore {
+ 			std::variant<int, ks2::KeyEntryResponse> response = keyEntryResponse;
+ 			auto keyResponse = std::get<ks2::KeyEntryResponse>(response);
+ 			ks2::CreateOperationResponse encOperationResponse;
++			printf("  calling createOperation on the SP key"
++			       " (security level %p)\n", (void*)keyResponse.iSecurityLevel.get());
++			fflush(stdout);
+ 			auto begin_rc = keyResponse.iSecurityLevel->createOperation(
+ 				keyResponse.metadata.key, begin_params.vector_data(), true,
+ 				&encOperationResponse);
+ 			if (!begin_rc.isOk()) {
+-				printf("Begin Operation failed\n");
++				printf("Begin Operation failed: exc=%d status=%d ssError=%d desc=%s\n",
++				       static_cast<int>(begin_rc.getExceptionCode()),
++				       static_cast<int>(begin_rc.getStatus()),
++				       begin_rc.getServiceSpecificError(),
++				       begin_rc.getDescription().c_str());
++				fflush(stdout);
+ 				return disk_decryption_secret_key;
+ 			}
+ 			std::optional<std::vector<uint8_t>> optPlaintext;
+@@ -749,64 +785,64 @@ bool Decrypt_User_Synth_Pass(const userid_t user_id, const std::string& Password
+ 		memcpy((void*)&application_id[0], (void*)&password_token[0], PASSWORD_TOKEN_SIZE);
+ 		memcpy((void*)&application_id[PASSWORD_TOKEN_SIZE], secdiscardable, SHA512_DIGEST_LENGTH);
+ 		if (Password != "!") {
+-			int ret = -1;
+-			bool request_reenroll = false;
+-			android::sp<android::hardware::gatekeeper::V1_0::IGatekeeper> gk_device;
+-			gk_device = ::android::hardware::gatekeeper::V1_0::IGatekeeper::getService();
+-			if (gk_device == nullptr) {
+-				printf("failed to get gatekeeper service\n");
+-				return Free_Return(retval, weaver_key, &pwd);
+-			}
+-			if (pwd.handle_len <= 0) {
+-				printf("no password handle supplied\n");
+-				return Free_Return(retval, weaver_key, &pwd);
+-			}
+-			android::hardware::hidl_vec<uint8_t> pwd_handle_hidl;
+-			pwd_handle_hidl.setToExternal(const_cast<uint8_t *>((const uint8_t *)pwd.password_handle), pwd.handle_len);
+-			void* gk_pwd_token = PersonalizedHashBinary(PERSONALIZATION_USER_GK_AUTH, (char*)&password_token[0], PASSWORD_TOKEN_SIZE);
+-			if (!gk_pwd_token) {
+-				printf("malloc error getting gatekeeper_key\n");
+-				return Free_Return(retval, weaver_key, &pwd);
+-			}
+-			android::hardware::hidl_vec<uint8_t> gk_pwd_token_hidl;
+-			GKResponse gkResponse;
+-			gk_pwd_token_hidl.setToExternal(const_cast<uint8_t *>((const uint8_t *)gk_pwd_token), SHA512_DIGEST_LENGTH);
+-			android::hardware::Return<void> hwRet =
+-				gk_device->verify(fakeUid(user_id), 0 /* challenge */,
+-								  pwd_handle_hidl,
+-								  gk_pwd_token_hidl,
+-								  [&gkResponse]
+-									// []
+-									(const android::hardware::gatekeeper::V1_0::GatekeeperResponse &rsp) {
+-										// ret = static_cast<int>(rsp.code); // propagate errors
+-										if (rsp.code >= android::hardware::gatekeeper::V1_0::GatekeeperStatusCode::STATUS_OK) {
+-											gkResponse = GKResponse::ok({rsp.data.begin(), rsp.data.end()});
+-											const hw_auth_token_t* hwAuthToken =
+-												reinterpret_cast<const hw_auth_token_t*>(gkResponse.payload().data());
+-											HardwareAuthToken authToken;
+-											authToken.timestamp.milliSeconds = betoh64(hwAuthToken->timestamp);
+-											authToken.challenge = hwAuthToken->challenge;
+-											authToken.userId = hwAuthToken->user_id;
+-											authToken.authenticatorId = hwAuthToken->authenticator_id;
+-											authToken.authenticatorType = static_cast<HardwareAuthenticatorType>(
+-													betoh32(hwAuthToken->authenticator_type));
+-											authToken.mac.assign(&hwAuthToken->hmac[0], &hwAuthToken->hmac[32]);
+-											AIBinder* authzAIBinder = AServiceManager_getService("android.security.authorization");
+-											::ndk::SpAIBinder binder(authzAIBinder);
+-											auto service = aidl::android::security::authorization::IKeystoreAuthorization::fromBinder(binder);
+-											if (service == NULL) {
+-												printf("error: could not connect to keystore service\n");
+-												ALOGE("error: could not connect to keystore service\n");
+-											}
+-											auto binder_result = service->addAuthToken(authToken);
+-										}
+-									}
+-								 );
+-			free(gk_pwd_token);
+-			if (!hwRet.isOk()) {
+-				printf("gatekeeper verification failed\n");
+-				return Free_Return(retval, weaver_key, &pwd);
+-			}
++            // OF_GK_SYNC: verify returns after its response callback.
++            auto gk_device = android::hardware::gatekeeper::V1_0::IGatekeeper::getService();
++            if (gk_device == nullptr || pwd.handle_len <= 0) {
++                printf("gatekeeper unavailable or password handle missing\n");
++                return Free_Return(retval, weaver_key, &pwd);
++            }
++            android::hardware::hidl_vec<uint8_t> pwd_handle_hidl;
++            pwd_handle_hidl.setToExternal((uint8_t*)pwd.password_handle, pwd.handle_len);
++            void* gk_pwd_token = PersonalizedHashBinary(PERSONALIZATION_USER_GK_AUTH,
++                    (char*)password_token, PASSWORD_TOKEN_SIZE);
++            if (!gk_pwd_token) return Free_Return(retval, weaver_key, &pwd);
++            android::hardware::hidl_vec<uint8_t> gk_pwd_token_hidl;
++            gk_pwd_token_hidl.setToExternal((uint8_t*)gk_pwd_token, SHA512_DIGEST_LENGTH);
++            int gk_code = -1;
++            bool callback_seen = false;
++            uint32_t retry_timeout = 0;
++            std::vector<uint8_t> hat;
++            android::ProcessState::self()->startThreadPool();
++            auto hwRet = gk_device->verify(fakeUid(user_id), 0 /* challenge */,
++                    pwd_handle_hidl, gk_pwd_token_hidl,
++                    [&](const android::hardware::gatekeeper::V1_0::GatekeeperResponse& rsp) {
++                        callback_seen = true;
++                        gk_code = static_cast<int>(rsp.code);
++                        retry_timeout = rsp.timeout;
++                        if (gk_code >= 0) hat.assign(rsp.data.begin(), rsp.data.end());
++                    });
++            free(gk_pwd_token);
++            printf("gatekeeper verify: transport=%d callback=%d code=%d timeout_ms=%u payload=%zu B\n",
++                    hwRet.isOk(), callback_seen, gk_code, retry_timeout, hat.size());
++            fflush(stdout);
++            if (!hwRet.isOk() || !callback_seen || gk_code < 0) {
++                // A failed GK response cannot authorize the SP key. Do not mask
++                // this failure with a later KeyMint USER_NOT_AUTHENTICATED error.
++                return Free_Return(retval, weaver_key, &pwd);
++            }
++            if (hat.size() != sizeof(hw_auth_token_t)) {
++                printf("gatekeeper returned invalid HAT size\n");
++                return Free_Return(retval, weaver_key, &pwd);
++            }
++            hw_auth_token_t hwAuthToken;
++            memcpy(&hwAuthToken, hat.data(), sizeof(hwAuthToken));
++            HardwareAuthToken authToken;
++            authToken.timestamp.milliSeconds = betoh64(hwAuthToken.timestamp);
++            authToken.challenge = hwAuthToken.challenge;
++            authToken.userId = hwAuthToken.user_id;
++            authToken.authenticatorId = hwAuthToken.authenticator_id;
++            authToken.authenticatorType = static_cast<HardwareAuthenticatorType>(
++                    betoh32(hwAuthToken.authenticator_type));
++            authToken.mac.assign(hwAuthToken.hmac, hwAuthToken.hmac + sizeof(hwAuthToken.hmac));
++            ::ndk::SpAIBinder binder(AServiceManager_getService("android.security.authorization"));
++            auto service = aidl::android::security::authorization::IKeystoreAuthorization::fromBinder(binder);
++            if (service == nullptr) {
++                printf("gatekeeper: keystore authorization service unavailable\n");
++                return Free_Return(retval, weaver_key, &pwd);
++            }
++            auto binder_result = service->addAuthToken(authToken);
++            printf("gatekeeper addAuthToken: ok=%d\n", binder_result.isOk());
++            if (!binder_result.isOk()) return Free_Return(retval, weaver_key, &pwd);
+ 		}
+ 	}
+ 	// Now we will handle https://android.googlesource.com/platform/frameworks/base/+/android-8.0.0_r23/services/core/java/com/android/server/locksettings/SyntheticPasswordManager.java#816
+@@ -900,8 +936,15 @@ extern "C" bool Decrypt_User(const userid_t user_id, const std::string& Password
+ 	}
+ 
+ 	if (Default_Password) {
+-		if (!Decrypt_CE_storage(user_id, 0, "!")) {
+-			return Decrypt_User_Synth_Pass(user_id, Password);
++		/* See work/_cmp/patch11_fbe.py: with stretching = "nopassword"
++		 * (this device) the CE key is wrapped through keystore and an empty
++		 * secret selects that path, while "!" selects the scrypt path used by
++		 * devices that wrap CE with the default password.  Try keystore first. */
++		if (!Decrypt_CE_storage(user_id, 0, "")) {
++			printf("OFDBG: keystore-wrapped CE key not usable, trying default-password secret\n");
++			if (!Decrypt_CE_storage(user_id, 0, "!")) {
++				return Decrypt_User_Synth_Pass(user_id, Password);
++			}
+ 		}
+ 		return true;
+ 	}
+diff --git a/MetadataCrypt.cpp b/MetadataCrypt.cpp
+index dd6d880..fd88506 100644
+--- a/MetadataCrypt.cpp
++++ b/MetadataCrypt.cpp
+@@ -80,7 +80,9 @@ const KeyGeneration makeGen(const CryptoOptions& options) {
+     return KeyGeneration{options.cipher.get_keysize(), true, options.use_hw_wrapped_key};
+ }
+ 
+-static bool mount_via_fs_mgr(const char* mount_point, const char* blk_device) {
++// Unused in the recovery build: the caller skips it because fs_mgr_do_mount()
++// blocks on the android.hardware.boot@1.0::IBootControl HIDL lookup here.
++[[maybe_unused]] static bool mount_via_fs_mgr(const char* mount_point, const char* blk_device) {
+     // fs_mgr_do_mount runs fsck. Use setexeccon to run trusted
+     // partitions in the fsck domain.
+     if (setexeccon(android::vold::sFsckContext)) {
+@@ -305,7 +307,13 @@ bool fscrypt_mount_metadata_encrypted(const std::string& blk_device, const std::
+     }
+ 
+     LOG(INFO) << "Mounting metadata-encrypted filesystem:" << mount_point;
+-    mount_via_fs_mgr(mount_point.c_str(), crypto_blkdev.c_str());
++    /* Recovery only: fs_mgr_do_mount() blocks forever on the
++     * android.hardware.boot@1.0::IBootControl HIDL lookup in this ramdisk, so
++     * the call is skipped. TWPartitionManager::Decrypt_Data() mounts
++     * Decrypted_Block_Device itself as soon as this function returns. */
++    fprintf(stderr, "OFDBG: metadata key ready, dm device '%s' (fs_mgr mount skipped)\n",
++            crypto_blkdev.c_str());
++    fflush(stderr);
+     android::base::SetProperty("ro.crypto.fs_crypto_blkdev", crypto_blkdev);
+ 
+     // Record that there's at least one fstab entry with metadata encryption

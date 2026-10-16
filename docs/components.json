@@ -1,0 +1,16 @@
+[
+  {
+    "component": "system/bin/recovery",
+    "bytes": 2908632,
+    "reference_sha256": "6122c736c03089a7827ea283bc5e7d5521a5818bb88cdf21997f7418d11bfd61",
+    "rebuilt_sha256": "6122c736c03089a7827ea283bc5e7d5521a5818bb88cdf21997f7418d11bfd61",
+    "identical": true
+  },
+  {
+    "component": "system/lib64/libbase.so",
+    "bytes": 242984,
+    "reference_sha256": "62f1c62553bf148496ca1688b5bd6ad36bc27bdbdc5d3b8aae121b7f7250f183",
+    "rebuilt_sha256": "62f1c62553bf148496ca1688b5bd6ad36bc27bdbdc5d3b8aae121b7f7250f183",
+    "identical": true
+  }
+]

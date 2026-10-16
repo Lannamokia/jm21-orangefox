@@ -1,0 +1,37 @@
+[
+  {
+    "path": "bootable/recovery",
+    "revision": "cbcc4f713dbef98d76d6d2cfd019b1ebfd9418e9",
+    "patch": "patches/bootable__recovery.patch"
+  },
+  {
+    "path": "build/make",
+    "revision": "1b692e2248609f50a27c48cce53b7445cecdcfc5",
+    "patch": "patches/build__make.patch"
+  },
+  {
+    "path": "system/core",
+    "revision": "ac4f36c7eb076ea2c582061a21dfc49eaa71e623",
+    "patch": "patches/system__core.patch"
+  },
+  {
+    "path": "system/libbase",
+    "revision": "4a9ed2dba8b438d9754d0569d868ba8df3ebacb6",
+    "patch": "patches/system__libbase.patch"
+  },
+  {
+    "path": "system/update_engine",
+    "revision": "f2b67e0969b5c527293e67b364aedce9347272be",
+    "patch": "patches/system__update_engine.patch"
+  },
+  {
+    "path": "system/vold",
+    "revision": "a164ba05c5fef288059774a776b2e6e1119957cf",
+    "patch": "patches/system__vold.patch"
+  },
+  {
+    "path": "vendor/twrp",
+    "revision": "664ac3aa7a569d28d902734c741a629a59bab32d",
+    "patch": "patches/vendor__twrp.patch"
+  }
+]

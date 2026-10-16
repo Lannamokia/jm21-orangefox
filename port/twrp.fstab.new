@@ -1,0 +1,54 @@
+# OrangeFox / TWRP fstab -- FiiO JM21 (bengal_515 / khaje, SM6225, Android 13, GKI 5.15)
+#
+# Why this file exists: TWRP prefers /etc/twrp.fstab over /etc/recovery.fstab
+# (twrp.cpp:534-536).  AOSP's recovery.fstab has to stay in the stock syntax for
+# the recovery binary's own tools, so the TWRP-specific flags live here instead.
+#
+# Anything listed here shows up in the backup / restore / mount lists, so only
+# partitions TWRP actually needs are listed: xbl, tz, abl, keymaster, fsg, fsc,
+# modemst1/2, uefivarstore, devinfo and splash are deliberately absent.
+#
+# /data is file-based encrypted (FBE v2, inlinecrypt + wrappedkey_v0) inside a
+# metadata-encryption layer (dm-default-key, aes-256-xts:wrappedkey_v0); the
+# wrapped metadata key lives on /metadata.  The flag spellings must match TWRP's
+# own table (partition.cpp:191-193,220-221):
+#     fileencryption=   metadata_encryption=   keydirectory=   wrappedkey
+
+# --- logical partitions inside super (TWRP creates the dm devices itself) -------
+system          /system          ext4  ro,barrier=1,discard  wait,slotselect,avb=vbmeta_system,logical,first_stage_mount
+system_ext      /system_ext      ext4  ro,barrier=1,discard  wait,slotselect,avb=vbmeta_system,logical,first_stage_mount
+vendor          /vendor          ext4  ro,barrier=1,discard  wait,slotselect,avb,logical,first_stage_mount
+vendor_dlkm     /vendor_dlkm     ext4  ro,barrier=1,discard  wait,slotselect,avb,logical,first_stage_mount
+system_dlkm     /system_dlkm     ext4  ro,barrier=1,discard  wait,slotselect,avb,logical,first_stage_mount
+odm             /odm             ext4  ro,barrier=1,discard  wait,slotselect,avb,logical,first_stage_mount
+product         /product         ext4  ro,barrier=1,discard  wait,slotselect,avb=vbmeta_system,logical,first_stage_mount
+
+# --- encryption -----------------------------------------------------------------
+# /metadata holds the wrapped metadata-encryption key
+/dev/block/bootdevice/by-name/metadata   /metadata   f2fs  noatime,nosuid,nodev,discard   wait,check,formattable,first_stage_mount
+# /data: FBE v2 + inlinecrypt + metadata encryption + wrapped keys.
+# If the crypto stack cannot unwrap the key this entry simply fails to decrypt and
+# /data stays unreadable -- it does NOT corrupt anything.
+/dev/block/bootdevice/by-name/userdata   /data       ext4  noatime,nosuid,nodev,discard,barrier=1,inlinecrypt   wait,check,formattable,quota,reservedsize=128M,fileencryption=aes-256-xts:aes-256-cts:v2+emmc_optimized+wrappedkey_v0,metadata_encryption=aes-256-xts:wrappedkey_v0,keydirectory=/metadata/vold/metadata_encryption,checkpoint=fs
+
+# --- vendor data ----------------------------------------------------------------
+/dev/block/bootdevice/by-name/persist    /persist    ext4  noatime,nosuid,nodev,barrier=1   wait
+
+# --- boot chain (slot suffixes are appended by TWRP's slotselect handling) ------
+/dev/block/bootdevice/by-name/boot         /boot         emmc  defaults  slotselect
+/dev/block/bootdevice/by-name/recovery     /recovery     emmc  defaults  slotselect
+/dev/block/bootdevice/by-name/init_boot    /init_boot    emmc  defaults  slotselect
+/dev/block/bootdevice/by-name/vendor_boot  /vendor_boot  emmc  defaults  slotselect
+/dev/block/bootdevice/by-name/dtbo         /dtbo         emmc  defaults  slotselect
+/dev/block/bootdevice/by-name/misc         /misc         emmc  defaults
+
+# --- removable storage ----------------------------------------------------------
+# external microSD (vfat/exfat); the card is mmcblk1 in the running system
+/dev/block/mmcblk1p1   /external_sd   auto   nosuid,nodev   wait
+# No /usb-otg entry on purpose.  With voldmanaged=usbotg:auto TWRP's wildcard
+# handling enumerates *every* block device it can find as writable USB-OTG
+# storage: this device ended up with /usb-otg-1..N over mmcblk0boot0,
+# mmcblk0boot1 and every mmcblk0pNN (userdata, metadata, misc, persist, ...).
+# All of them mountable and writable -- a brick risk -- plus a screenful of
+# unidentifiable "Storage N" entries in the mount page.  Cost: no USB-OTG
+# *storage* in recovery.  See README 21.

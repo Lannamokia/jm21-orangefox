@@ -1,0 +1,24 @@
+diff --git a/logging.cpp b/logging.cpp
+index 4942e2f..ce03320 100644
+--- a/logging.cpp
++++ b/logging.cpp
+@@ -331,6 +331,8 @@ void LogdLogger::operator()(LogId id, LogSeverity severity, const char* tag, con
+     id = default_log_id_;
+   }
+ 
++  // OF_STDERR_TEE: same tee for the pre-Android-30 / LogFunction path.
++  StderrLogger(DEFAULT, severity, tag, file, line, message);
+   SplitByLogdChunks(id, severity, tag, file, line, message, LogdLogChunk);
+ }
+ 
+@@ -514,6 +516,10 @@ std::ostream& LogMessage::stream() {
+ 
+ void LogMessage::LogLine(const char* file, unsigned int line, LogSeverity severity, const char* tag,
+                          const char* message) {
++  // OF_STDERR_TEE: recovery has no logd, so liblog drops every LOG() line and the
++  // vold / HAL diagnostics we need are invisible. TWRP points stderr at its own
++  // log file, so tee the same line there. See work/_cmp/patch_libbase.py.
++  StderrLogger(DEFAULT, severity, tag, file, line, message);
+   int32_t priority = LogSeverityToPriority(severity);
+   if (__builtin_available(android 30, *)) {
+     __android_log_message log_message = {

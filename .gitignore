@@ -1,0 +1,13 @@
+__pycache__/
+*.pyc
+*.img
+*.cpio
+*.ramdisk
+*.tar.gz
+/device/fiio/jm21/prebuilt/Image
+/work/_cmp/km/
+/work/_cmp/km2/
+/work/_cmp/gk/
+/work/_cmp/hidl-memory-a13/
+/work/_cmp/vintf/
+/work/_cmp/v28_rd/

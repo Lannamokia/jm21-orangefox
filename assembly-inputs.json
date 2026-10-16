@@ -1,0 +1,252 @@
+[
+  {
+    "path": "work/_cmp/gk/bin/hw/android.hardware.gatekeeper@1.0-service-qti",
+    "bytes": 11408,
+    "sha256": "5e33d102f7767aea6b308a8f24fab692c303cef09ae9e392c993993c73dd2b88"
+  },
+  {
+    "path": "work/_cmp/gk/lib64/hw/android.hardware.gatekeeper@1.0-impl-qti.so",
+    "bytes": 37352,
+    "sha256": "9079887ff15139ba390beef7324f0f401732bfc7ff394b776f086c9820213def"
+  },
+  {
+    "path": "work/_cmp/hidl-memory-a13/android.hidl.allocator@1.0.so",
+    "bytes": 80040,
+    "sha256": "ec15fb5e8d7de7a67a137737991aa71631e90e9026927f158a0a38344f36f49e"
+  },
+  {
+    "path": "work/_cmp/hidl-memory-a13/android.hidl.memory.token@1.0.so",
+    "bytes": 75368,
+    "sha256": "2efb437708e5dded0d71f3bd467dbe81eab8061fb8c9c7cd589eb4c952b41385"
+  },
+  {
+    "path": "work/_cmp/hidl-memory-a13/android.hidl.memory@1.0.so",
+    "bytes": 125144,
+    "sha256": "855fb5f6f7d046f8abc7be250b675075fc8124f5ea59b272c34356fce72d3482"
+  },
+  {
+    "path": "work/_cmp/hidl-memory-a13/libhidlmemory.so",
+    "bytes": 25104,
+    "sha256": "641d21801483b8f687e60e4001a881716d9bd4df26fad62002f5c554cb6c36b0"
+  },
+  {
+    "path": "work/_cmp/km/bin/hw/android.hardware.keymaster@4.0-service-qti",
+    "bytes": 23952,
+    "sha256": "e651d5db49701ae0f9e0e47b428e90bc4adeddeaf16c52dd03271c541628a903"
+  },
+  {
+    "path": "work/_cmp/km/bin/qseecomd",
+    "bytes": 32552,
+    "sha256": "479ee7f07bbfe02365c247e6608199debaa44375c3a148c47eb3a4ee19b758dd"
+  },
+  {
+    "path": "work/_cmp/km/lib64/libGPreqcancel.so",
+    "bytes": 23528,
+    "sha256": "7c9723b2ccf8f17fd57f936b821b2c1ba0a6524803a48cd6bdbffdcf5bfb27f6"
+  },
+  {
+    "path": "work/_cmp/km/lib64/libGPreqcancel_svc.so",
+    "bytes": 23568,
+    "sha256": "c8c11fceaef02ce89654ca4a615122965972bf61ad742a6d3c898e7108387b83"
+  },
+  {
+    "path": "work/_cmp/km/lib64/libQSEEComAPI.so",
+    "bytes": 44248,
+    "sha256": "ca4404f7a6549561a2528f1415e136a15d242205d5bfb2f398aa8ff1d2ef8a27"
+  },
+  {
+    "path": "work/_cmp/km/lib64/libStDrvInt.so",
+    "bytes": 27768,
+    "sha256": "7d8f75d60b7cab8a74a0f437b2b3efae5ef0da1b598a82b16e7c27aaf2da0304"
+  },
+  {
+    "path": "work/_cmp/km/lib64/libdisplayconfig.qti.so",
+    "bytes": 144184,
+    "sha256": "ae65a053550ca7430611b3f9bd022a2bbf2f54160319793bf88eb0c2e5c0fee9"
+  },
+  {
+    "path": "work/_cmp/km/lib64/libdrm.so",
+    "bytes": 86456,
+    "sha256": "6302d0448ad1b2209c3b98758d52bc4f1cdd0111f4c7cd4000f529232c02cd71"
+  },
+  {
+    "path": "work/_cmp/km/lib64/libdrmfs.so",
+    "bytes": 44536,
+    "sha256": "e9cd8ad4f9cfb333981d5fd0394e3f65c9473450c19b6921093b51ed40de5bdf"
+  },
+  {
+    "path": "work/_cmp/km/lib64/libdrmtime.so",
+    "bytes": 14904,
+    "sha256": "6e46e28b1f9e383ac52602d79a9a42ee4bd7bf6a476be37f252768b8c7bdcc4c"
+  },
+  {
+    "path": "work/_cmp/km/lib64/libgpt.so",
+    "bytes": 31968,
+    "sha256": "9be0b1b5ced90d47f483dbd9d9e25aa9dd6af4f069e5f37e48a262eaf8bb0b34"
+  },
+  {
+    "path": "work/_cmp/km/lib64/libkeymasterdeviceutils.so",
+    "bytes": 27784,
+    "sha256": "6140530febc45397840ba0196ef4f6c3ffbdc31217f792ec14f666e3e113061d"
+  },
+  {
+    "path": "work/_cmp/km/lib64/libkeymasterutils.so",
+    "bytes": 239504,
+    "sha256": "6a0c420271ab4ff1dd67e465b3a4a049dcfea97e9c6ae691e1d8743183aaa60f"
+  },
+  {
+    "path": "work/_cmp/km/lib64/libops.so",
+    "bytes": 15016,
+    "sha256": "6628e8e9ce2123f198e0e2bc7e369a0951c0a8bb7300cad5426c828506b8391e"
+  },
+  {
+    "path": "work/_cmp/km/lib64/libqcbor.so",
+    "bytes": 23024,
+    "sha256": "dad740bd20a92863487e651f27716424032877b1b9d055ca54094da61c6f8cb7"
+  },
+  {
+    "path": "work/_cmp/km/lib64/libqisl.so",
+    "bytes": 32032,
+    "sha256": "6e295fea4482f3a3ba84c7f6b20a4ff34a0f50e738a9c57db5c856627c12f279"
+  },
+  {
+    "path": "work/_cmp/km/lib64/libqtikeymaster4.so",
+    "bytes": 187296,
+    "sha256": "b95fc88d69cd65a595d7d6cd94718942e404cf1f02c5d2ec6cf5d1c4c95c5afa"
+  },
+  {
+    "path": "work/_cmp/km/lib64/librpmb.so",
+    "bytes": 41680,
+    "sha256": "1e37c9c498263f50e057ae9351590d2d13dd607506f66ca8a929c7fa7427cf2e"
+  },
+  {
+    "path": "work/_cmp/km/lib64/libsecureui.so",
+    "bytes": 45200,
+    "sha256": "eb31ec08520a797b440cacfae5470c74a527264acb78a81889a5463aefcf22d3"
+  },
+  {
+    "path": "work/_cmp/km/lib64/libsecureui_svcsock.so",
+    "bytes": 51160,
+    "sha256": "2bdfdbf1b71e2e10f89db3ae975b55096cb982987123ea283adf569601b71292"
+  },
+  {
+    "path": "work/_cmp/km/lib64/libspl.so",
+    "bytes": 10736,
+    "sha256": "53819dcb8f85fde63e12d4c64464a1ccb797143eaa822d94ae509485ccfe8fa5"
+  },
+  {
+    "path": "work/_cmp/km/lib64/libssd.so",
+    "bytes": 10768,
+    "sha256": "7e1cc857919f667dd8710c6bb695e7aa980ff71d64d9388471eb086b7e2c9bd8"
+  },
+  {
+    "path": "work/_cmp/km/lib64/libtime_genoff.so",
+    "bytes": 15008,
+    "sha256": "cb9e8ba361aac7cec7adfce25cecae92ed79e01f1af4c79aa9a59e94da31b103"
+  },
+  {
+    "path": "work/_cmp/km/lib64/vendor.display.config@1.0.so",
+    "bytes": 167576,
+    "sha256": "7e6e015514c125dbf93c4c7642cd8caa88b7c4fe6b24e2e81954fb1561a92745"
+  },
+  {
+    "path": "work/_cmp/km/lib64/vendor.display.config@2.0.so",
+    "bytes": 165528,
+    "sha256": "a0dc0c7d81f5300d3649bbf76b4ac6961fe405813ec6dd4a78fe22a111f3bdb4"
+  },
+  {
+    "path": "work/_cmp/km/lib64/vendor.qti.hardware.qseecom@1.0.so",
+    "bytes": 157824,
+    "sha256": "439ce269fa874b87c914cd2fad3882413affd42f427d4f92de05ba2fbacd95b0"
+  },
+  {
+    "path": "work/_cmp/km/lib64/vendor.qti.hardware.tui_comm@1.0.so",
+    "bytes": 184776,
+    "sha256": "4e93b895b08286e2c8cf64276a665f6d4acabb0738b1a9d8d4f2c8f8a945f306"
+  },
+  {
+    "path": "work/_cmp/km/libdiag.so",
+    "bytes": 305080,
+    "sha256": "1ce8d3280e6738a27984350b89c1fad4b82746e50cae86748bf7bbdc89773396"
+  },
+  {
+    "path": "work/_cmp/km/libdmabufheap.so",
+    "bytes": 87512,
+    "sha256": "6b2f8622f6d9a93eed769cad9730b4b4bd367f9308659ebc16a88872deeb6f81"
+  },
+  {
+    "path": "work/_cmp/km/libxml2.so",
+    "bytes": 1297920,
+    "sha256": "70ba79801b48934e81ac95b7584ae270f496429354b3e1b3034a4d5a7edcb187"
+  },
+  {
+    "path": "work/_cmp/km/qseecom-impl.so",
+    "bytes": 50168,
+    "sha256": "db87be4a7b24b4bb2d866625cc94ab09ff814b24f197c5cfd9c42980ef00f991"
+  },
+  {
+    "path": "work/_cmp/km/vendor-build.prop",
+    "bytes": 12583,
+    "sha256": "5ef7cbf92a311986844c6a4449f5770d7a8928e684f3d8f89b5b7c72e688ac40"
+  },
+  {
+    "path": "work/_cmp/km/vendor-ueventd.rc",
+    "bytes": 31811,
+    "sha256": "15ebc05448839abe702f60d9f0f0b6e3e35c3cd9503479d40a9b0d8f83373949"
+  },
+  {
+    "path": "work/_cmp/km/vendor.qti.hardware.qseecom@1.0-service",
+    "bytes": 11112,
+    "sha256": "3c554f67fbff495a3293129f6926c66fe964a5853d348305c6c753a65649afbf"
+  },
+  {
+    "path": "work/_cmp/km2/android.hardware.security.keymint-V2-ndk.so",
+    "bytes": 155160,
+    "sha256": "76cea96b05686b22b9ec15fde3e09069675e43078dc15d722f5ea478ce0fe4d1"
+  },
+  {
+    "path": "work/_cmp/km2/android.hardware.security.keymint-service-qti",
+    "bytes": 37080,
+    "sha256": "b1120b469fc6a8de756e7e3330cf6dfe2149ced0b91323dbfa70514e141069b5"
+  },
+  {
+    "path": "work/_cmp/km2/android.hardware.security.secureclock-V1-ndk.so",
+    "bytes": 42192,
+    "sha256": "7653526e0f45a5e3091b114b4c35d358851e0758400efea0d108100028a29a0c"
+  },
+  {
+    "path": "work/_cmp/km2/android.hardware.security.sharedsecret-V1-ndk.so",
+    "bytes": 46480,
+    "sha256": "9f16bd2e056c9ca3254f704301d675b0958eb7479e957ab7e04a45678993bb00"
+  },
+  {
+    "path": "work/_cmp/km2/libqtikeymint.so",
+    "bytes": 219776,
+    "sha256": "bd0320af4eaa96d6eeccef758f9a35c172dd4aad1912f6e851ea092da39a047b"
+  },
+  {
+    "path": "work/_cmp/v28-crypto-gzip.img",
+    "bytes": 26206208,
+    "sha256": "d6a591531da05607da14ab7fc8c4043546980f10bb673ace9320dee21bd5a022"
+  },
+  {
+    "path": "work/_cmp/v28_rd/v28-crypto-gzip/ramdisk.cpio",
+    "bytes": 64032512,
+    "sha256": "94872782f622136a23d0d658043775c14a41aa704d1b6a5e12d228f19a0c37b9"
+  },
+  {
+    "path": "work/_cmp/vintf/vintf/manifest/android.hardware.gatekeeper@1.0-service-qti.xml",
+    "bytes": 372,
+    "sha256": "53679ef39ec7434d86170dd9540c477c2626a75179ed550aca8e87935dbfd603"
+  },
+  {
+    "path": "work/_cmp/vintf/vintf/manifest/android.hardware.security.keymint-service-qti.xml",
+    "bytes": 1971,
+    "sha256": "3a7ca3bb273ea870d5054cbc90ae117dcfc836ea123ce9f1b41cea926c63477a"
+  },
+  {
+    "path": "work/_cmp/vintf/vintf/manifest/vendor.qti.hardware.qseecom@1.0-service.xml",
+    "bytes": 366,
+    "sha256": "968e60a32a110b0d0a3bff443cc5c89b53cac07c6fdd82766f94728f88a1a878"
+  }
+]

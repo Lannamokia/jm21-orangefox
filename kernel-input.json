@@ -1,0 +1,6 @@
+{
+  "path": "device/fiio/jm21/prebuilt/Image",
+  "bytes": 49646080,
+  "sha256": "4ce4b06e900786030261bbc378d2b13bad160eca5847f65fa3c596b54bc39846",
+  "origin": "FiiO JM21 stock boot kernel, Linux 5.15.41; excluded from final recovery image"
+}
